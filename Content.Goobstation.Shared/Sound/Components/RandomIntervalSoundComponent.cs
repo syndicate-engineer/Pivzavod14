@@ -13,6 +13,9 @@ public sealed partial class RandomIntervalSoundComponent : Component
     [DataField(customTypeSerializer: typeof(TimeOffsetSerializer)), AutoPausedField]
     public TimeSpan NextSound;
 
+    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer)), AutoPausedField]
+    public TimeSpan PlayingUntil;
+
     [DataField]
     public TimeSpan MinInterval = TimeSpan.FromSeconds(8);
 

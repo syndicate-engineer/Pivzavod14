@@ -1,0 +1,52 @@
+- type: entity
+  parent: BaseStructure
+  id: EventTelevision
+  name: телевизор
+  description: у сачука мама шлюха
+  components:
+  - type: Sprite
+    sprite: Structures/Machines/computers.rsi
+    drawdepth: Objects
+    noRot: true
+    layers:
+    - map: ["computerLayerBody"]
+      state: television
+    - map: ["computerLayerScreen"]
+      state: detective_television
+      visible: false
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.RandomIntervalSoundVisuals.Playing:
+        computerLayerScreen:
+          True: { visible: true }
+          False: { visible: false }
+  - type: RandomIntervalSound
+    minInterval: 30
+    maxInterval: 30
+    sound:
+      path: /Audio/_Reserve/EVENT020426/tv.ogg
+      params:
+        maxDistance: 10
+        volume: 0
+  - type: PointLight
+    enabled: true
+    radius: 1.5
+    energy: 0.4
+    color: "#4169E1"
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.4,-0.4,0.4,0.4"
+        density: 100
+        mask:
+        - MachineMask
+        layer:
+        - MachineLayer
+  - type: Transform
+    anchored: true
+
