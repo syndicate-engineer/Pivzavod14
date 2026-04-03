@@ -26,7 +26,7 @@ public sealed class DynamicHostnameSystem : EntitySystem
     [Dependency] private readonly IConfigurationManager _configuration = default!;
     [Dependency] private readonly IPrototypeManager _proto = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly IJoinQueueManager _queue = default!;
+
     [Dependency] private readonly IGameTiming _gameTiming = default!;
 
     private static readonly ProtoId<LocalizedDatasetPrototype> _messagesProto = "MessageOfTheDay";
@@ -71,8 +71,7 @@ public sealed class DynamicHostnameSystem : EntitySystem
     {
         var hostname = _originalHostname;
 
-        if (_queue.PlayerInQueueCount > 0)
-            hostname += " | Queue: " + _queue.PlayerInQueueCount + " players";
+        // JoinQueue removed
 
         if (_messages != null && _messages.Values.Count > 0)
             hostname += " | " + _random.Pick(_messages);

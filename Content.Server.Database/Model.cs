@@ -835,7 +835,7 @@ namespace Content.Server.Database
         public List<Round> Rounds { get; set; } = null!;
         public List<AdminLogPlayer> AdminLogs { get; set; } = null!;
 
-        public int ServerCurrency { get; set; } // Goobstation - Goob coin
+
 
         public TimeSpan? LastRolledAntag { get; set; } // Goobstation
 
@@ -1260,7 +1260,7 @@ namespace Content.Server.Database
         /// Results from rejected connections who are authenticated but have no modern hwid associated with them.
         NoHwid = 6,
 
-        AuthRequired = 20, // Reserve-LenaApi-End
+        AuthRequired = 20
     }
 
     public class ServerBanHit

@@ -32,16 +32,9 @@ public sealed partial class GoobAdminVerbSystem
         {
             Text = thunderstrike,
             Category = VerbCategory.Smite,
-            Icon = new SpriteSpecifier.Texture(new ("/Textures/Interface/VerbIcons/smite.svg.192dpi.png")),
-            Act = () =>
-            {
-                var ogun = EntityManager.System<ThunderstrikeSystem>();
-                ogun.Smite(args.Target, kill: true);
-            },
-            Impact = LogImpact.Extreme,
-            Message = Loc.GetString("admin-smite-thunderstrike-desc"),
+            // Thunderstrike removed
         };
-        args.Verbs.Add(thunder);
+
     }
 
     private bool SmitesAllowed(GetVerbsEvent<Verb> args)

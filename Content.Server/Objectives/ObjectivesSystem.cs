@@ -44,7 +44,7 @@ using Robust.Shared.Random;
 using System.Linq;
 using System.Text;
 using Content.Goobstation.Common.CCVar;
-using Content.Goobstation.Common.ServerCurrency;
+
 using Content.Goobstation.Shared.ManifestListings;
 using Content.Server.Objectives.Commands;
 using Content.Shared.CCVar;
@@ -70,7 +70,7 @@ public sealed class ObjectivesSystem : SharedObjectivesSystem
     [Dependency] private readonly IRobustRandom _random = default!;
     [Dependency] private readonly EmergencyShuttleSystem _emergencyShuttle = default!;
     [Dependency] private readonly SharedJobSystem _job = default!;
-    [Dependency] private readonly ICommonCurrencyManager _currencyMan = default!;
+
     [Dependency] private readonly IConfigurationManager _cfg = default!;
     [Dependency] private readonly ISharedAdminLogManager _adminLog = default!;
     [Dependency] private readonly SharedRoleSystem _roles = default!;
@@ -241,90 +241,10 @@ public sealed class ObjectivesSystem : SharedObjectivesSystem
 
                     var objectiveTitle = info.Value.Title;
                     var progress = info.Value.Progress;
-                    var reward = info.Value.ServerCurrency;
-                    var rewardPartial = info.Value.PartialCurrency;
-                    totalObjectives++;
-
-                    // Goob (even tho the entire file got massacred by John already)
-                    // Logging objective status for admins
-                    IFormattable? username = ToPrettyString(mind.CurrentEntity);
-                    if (username is null &&
-                        userid.HasValue &&
-                        _player.TryGetPlayerData(userid.Value, out var data))
-                        username = System.Runtime.CompilerServices.FormattableStringFactory.Create(data.UserName);
-
-                    _adminLog.Add(Shared.Database.LogType.AntagObjective,
-                                    Shared.Database.LogImpact.Low,
-                                    $"{username:subject} achieved {progress}% of objective {objectiveTitle}");
-
-                    agentSummary.Append("- ");
-                    if (!_showGreentext)
-                    {
-                        agentSummary.AppendLine(objectiveTitle);
-                    }
-                    else if (progress > 0.99f)
-                    {
-                        agentSummary.AppendLine(Loc.GetString(
-                            "objectives-objective-success",
-                            ("objective", objectiveTitle),
-                            ("progress", progress)
-                        ));
-                        completedObjectives++;
-
-                        // Easiest place to give people points for completing objectives lol
-                        if (userid.HasValue)
-                            if (currencyStorage.ContainsKey(userid.Value))
-                                currencyStorage[userid.Value] += reward;
-                            else
-                                currencyStorage.Add(userid.Value, reward);
-                    }
-                    else if (progress <= 0.99f && progress >= 0.5f)
-                    {
-                        agentSummary.AppendLine(Loc.GetString(
-                            "objectives-objective-partial-success",
-                            ("objective", objectiveTitle),
-                            ("progress", progress)
-                        ));
-                        //Goobstation
-                        if (userid.HasValue && rewardPartial)
-                            if (currencyStorage.ContainsKey(userid.Value))
-                                currencyStorage[userid.Value] += reward * progress;
-                            else
-                                currencyStorage.Add(userid.Value, reward * progress);
-                    }
-                    else if (progress < 0.5f && progress > 0f)
-                    {
-                        agentSummary.AppendLine(Loc.GetString(
-                            "objectives-objective-partial-failure",
-                            ("objective", objectiveTitle),
-                            ("progress", progress)
-                        ));
-                    }
-                    else
-                    {
-                        agentSummary.AppendLine(Loc.GetString(
-                            "objectives-objective-fail",
-                            ("objective", objectiveTitle),
-                            ("progress", progress)
-                        ));
-                    }
+                    // Currency removed
                 }
             }
-
-            var successRate = totalObjectives > 0 ? (float)completedObjectives / totalObjectives : 0f;
-            agentSummaries.Add((agentSummary.ToString(), successRate, completedObjectives));
         }
-
-        var sortedAgents = agentSummaries.OrderByDescending(x => x.successRate)
-                                       .ThenByDescending(x => x.completedObjectives);
-
-        foreach (var (summary, _, _) in sortedAgents)
-        {
-            result.AppendLine(summary);
-        }
-
-        foreach (var (key, currency) in currencyStorage)
-            _currencyMan.AddCurrency(key, (int)Math.Round( currency * _goobcoinsServerMultiplier));
     }
 
     public EntityUid? GetRandomObjective(EntityUid mindId, MindComponent mind, ProtoId<WeightedRandomPrototype> objectiveGroupProto, float maxDifficulty)

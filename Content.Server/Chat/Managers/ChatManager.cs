@@ -205,10 +205,9 @@ using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Replays;
 using Robust.Shared.Utility;
-using Content.Server._RMC14.LinkAccount; // RMC - Patreon
-using Content.Server._Reserve.LenaApi; // Reserve
+
 using Content.Server.Discord; // Reserve edit
-using Content.Shared._Reserve.LenaApi; // Reserve edit - naplak kutosa
+
 
 namespace Content.Server.Chat.Managers;
 
@@ -236,10 +235,9 @@ internal sealed partial class ChatManager : IChatManager
     [Dependency] private readonly IEntityManager _entityManager = default!;
     [Dependency] private readonly PlayerRateLimitManager _rateLimitManager = default!;
     [Dependency] private readonly ISharedPlayerManager _player = default!;
-    [Dependency] private readonly LinkAccountManager _linkAccount = default!; // RMC - Patreon
     [Dependency] private readonly DiscordWebhook _discord = default!; // Reserve edit
     [Dependency] private readonly ChatProtectionSystem _chatProtection = default!; // Orion
-    [Dependency] private readonly LenaApiManager _lenaApiManager = default!; // Reserve
+
 
     /// <summary>
     /// The maximum length a player-sent message can be sent
@@ -259,9 +257,7 @@ internal sealed partial class ChatManager : IChatManager
 
         _configurationManager.OnValueChanged(CCVars.OocEnabled, OnOocEnabledChanged, true);
         _configurationManager.OnValueChanged(CCVars.AdminOocEnabled, OnAdminOocEnabledChanged, true);
-        _configurationManager.OnValueChanged(LenaApiCVars.DoocEnabled,
-            OnDoocEnabledChanged,
-            true); // Reserve ooc-discord
+        // DOOC removed
 
         RegisterRateLimits();
     }
@@ -477,8 +473,6 @@ internal sealed partial class ChatManager : IChatManager
 
     private void SendOOC(ICommonSession player, string message)
     {
-        var user = _lenaApiManager.GetUser(player.UserId);
-
         if (_adminManager.IsAdmin(player))
         {
             if (!_adminOocEnabled)
@@ -486,12 +480,11 @@ internal sealed partial class ChatManager : IChatManager
                 return;
             }
         }
-        else // Reserve ooc-discord
+        else
         {
             if (!_oocEnabled)
             {
-                if (!_donorsOocEnabled || !(user?.HasActiveSub(out _) ?? false))
-                    return;
+                return;
             }
         }
 
@@ -505,30 +498,7 @@ internal sealed partial class ChatManager : IChatManager
             colorOverride = prefs.AdminOOCColor;
         }
 
-        // Reserve-LenaApi-Start
-        if (!_adminManager.IsAdmin(player) &&
-            user is { CurrentSubTier: > 0, UsernameColor: not null } &&
-            user.HasActiveSub(out _))
-        {
-            var subName = _lenaApiManager.GetSubLevelName(user.CurrentSubTier);
-
-            if (_configurationManager.GetCVar(LenaApiCVars.IgnoreSubName) && !string.IsNullOrEmpty(subName))
-            {
-                wrappedMessage = Loc.GetString("reserve-chat-manager-send-ooc-with-sub-unknown",
-                    ("patronColor", user.UsernameColor.Value.ToHex()),
-                    ("playerName", player.Name),
-                    ("message", FormattedMessage.EscapeText(message)));
-            }
-            else
-            {
-                wrappedMessage = Loc.GetString("reserve-chat-manager-send-ooc-with-sub",
-                    ("subName", subName ?? string.Empty),
-                    ("patronColor", user.UsernameColor.Value.ToHex()),
-                    ("playerName", player.Name),
-                    ("message", FormattedMessage.EscapeText(message)));
-            }
-        }
-        // Reserve-LenaApi-End
+        // DOOC removed
 
         //TODO: player.Name color, this will need to change the structure of the MsgChatMessage
         ChatMessageToAll(ChatChannel.OOC,
